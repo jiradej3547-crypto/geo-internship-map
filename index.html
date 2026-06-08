@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบแผนที่ข้อมูลฝึกงานนิสิตภูมิศาสตร์</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        * { box-sizing: border-box; font-family: Tahoma, sans-serif; }
+        body { margin: 0; padding: 0; display: flex; height: 100vh; flex-direction: column; }
+        
+        /* แผงควบคุม Filter ด้านบน */
+        #filter-container {
+            background: #ffffff;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        select, input, button {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button { background-color: #007bff; color: white; cursor: pointer; font-weight: bold; border: none; }
+        button:hover { background-color: #0056b3; }
+        
+        /* พื้นที่แผนที่กว้างเต็มจอ */
+        #map { flex: 1; width: 100%; z-index: 1; }
+
+        /* กล่องคำอธิบายสัญลักษณ์แผนที่ (Legend) */
+        .legend {
+            background: white; padding: 10px; line-height: 18px; color: #555;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 5px; font-size: 13px;
+        }
+        .legend i { width: 14px; height: 14px; float: left; margin-right: 8px; opacity: 0.8; border-radius: 50%; }
+    </style>
+</head>
+<body>
+
+    <div id="filter-container">
+        <strong>ตัวกรองพื้นที่:</strong>
+        <select id="filter-province"><option value="">-- เลือกจังหวัด --</option></select>
+        <select id="filter-amphoe"><option value="">-- เลือกอำเภอ --</option></select>
+        <select id="filter-tambon"><option value="">-- เลือกตำบล --</option></select>
+        <button onclick="resetFilter()">ล้างตัวกรอง</button>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+    <script>
+        // 1. เชื่อมต่อ Supabase (อัปเดตเป็น Service Role Key ตัวจริงที่ใช้งานได้ชัวร์แล้วครับ)
+        const SUPABASE_URL = 'https://wcybylobwcqwbicgvuhv.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjeWJ5bG9id2Nxd2JpY2d2dWh2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDkyNjUyNCwiZXhwIjoyMDk2NTAyNTI0fQ.BN4h5gmZXXbsuZ67wF9T4FqhcsiO03__cqbAlcyIHAQ';
+        
+        const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // 2. สร้างแผนที่ตั้งต้นประเทศไทย
+        const map = L.map('map').setView([15.0, 100.5], 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        let allPlaces = []; 
+        let markerGroup = L.layerGroup().addTo(map); 
+
+        // 3. ฟังก์ชันโหลดข้อมูลหลัก
+        async function loadDataFromSupabase() {
+            try {
+                let { data: CHG, error } = await dbClient.from('CHG').select('*').order('id', { ascending: true });
+                if (error) { 
+                    console.error('Supabase Error:', error); 
+                    return; 
+                }
+
+                allPlaces = CHG;
+                setupDropdowns(); 
+                renderMarkers(allPlaces); 
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // 4. ฟังก์ชันวาดหมุด + แยกสี + สร้าง Popup ฟอร์มจอง
+        function renderMarkers(dataList) {
+            markerGroup.clearLayers(); 
+
+            dataList.forEach(place => {
+                if (!place.latitude || !place.longitude) return;
+
+                // เงื่อนไขแยกสีหมุด: ถ้าช่องชื่อรุ่นพี่ไม่ว่าง = เขียว, ถ้าว่างเปล่า = แดง
+                let markerColor = "red"; 
+                if (place.alumni_name && place.alumni_name.toString().trim() !== "") {
+                    markerColor = "green";
+                }
+
+                let lat = parseFloat(place.latitude);
+                let lng = parseFloat(place.longitude);
+
+                let marker = L.circleMarker([lat, lng], {
+                    color: markerColor,
+                    fillColor: markerColor,
+                    fillOpacity: 0.7,
+                    radius: 10
+                });
+
+                let popupContent = `
+                    <div style="font-size:14px; min-width:220px;">
+                        <h3 style="margin:0 0 8px 0; color:#333;">${place.name || 'ไม่มีชื่อสถานที่'}</h3>
+                        <b>ประเภท:</b> ${place.type || '-'}<br>
+                        <b>พื้นที่:</b> ต.${place.tambon || '-'} อ.${place.amphoe || '-'} จ.${place.province || '-'}<br>
+                        <b>ข้อมูลติดต่อ:</b> ${place.contact || '-'}<br>
+                        <b>ลิงก์:</b> ${place.link ? `<a href="${place.link}" target="_blank">ลิงก์ติดต่อ</a>` : '-'}<br>
+                        <span style="color:green;"><b>รุ่นพี่ที่เคยฝึก:</b> ${place.alumni_name || 'ยังไม่มีข้อมูล'}</span> 
+                        ${place.academic_year ? `(${place.academic_year})` : ''}<br>
+                        <i>"${place.review || '-'}"</i>
+                        <hr style="margin:10px 0; border: 0; border-top: 1px dashed #ccc;">
+                        <strong>[ ระบบจองที่ฝึกงาน ]</strong><br>
+                        <b>สถานะ:</b> ${place.booking_status || '<span style="color:gray;">ว่าง</span>'}<br>
+                        <b>ผู้จอง:</b> ${place.student_booking || '-'}<br>
+                        
+                        <div style="margin-top:8px; display:flex; flex-direction:column; gap:5px;">
+                            <input type="text" id="book-name-${place.id}" placeholder="พิมพ์ชื่อของคุณเพื่อจอง" value="${place.student_booking || ''}">
+                            <button onclick="handleBooking(${place.id})">บันทึกการจอง / ยกเลิก</button>
+                        </div>
+                    </div>
+                `;
+
+                marker.bindPopup(popupContent);
+                markerGroup.addLayer(marker);
+            });
+        }
+
+        // 5. ฟังก์ชันอัปเดตการจอง
+        async function handleBooking(id) {
+            let inputName = document.getElementById(`book-name-${id}`).value.trim();
+            let status = inputName !== "" ? "จองแล้ว" : null;
+            let finalName = inputName !== "" ? inputName : null;
+
+            const { error } = await dbClient
+                .from('CHG')
+                .update({ student_booking: finalName, booking_status: status })
+                .eq('id', id);
+
+            if (error) {
+                alert("เกิดข้อผิดพลาด: " + error.message);
+            } else {
+                alert("อัปเดตข้อมูลการจองเรียบร้อยแล้ว!");
+                loadDataFromSupabase(); 
+            }
+        }
+
+        // 6. ระบบกรองพื้นที่ (Cascading Dropdown)
+        const pSel = document.getElementById('filter-province');
+        const aSel = document.getElementById('filter-amphoe');
+        const tSel = document.getElementById('filter-tambon');
+
+        function setupDropdowns() {
+            let provinces = [...new Set(allPlaces.map(p => p.province))].filter(Boolean);
+            pSel.innerHTML = '<option value="">-- เลือกจังหวัด --</option>';
+            provinces.forEach(p => pSel.innerHTML += `<option value="${p}">${p}</option>`);
+
+            pSel.onchange = function() {
+                let filtered = allPlaces.filter(p => p.province === this.value);
+                if(this.value === "") filtered = allPlaces;
+                
+                let amphoes = [...new Set(filtered.map(p => p.amphoe))].filter(Boolean);
+                aSel.innerHTML = '<option value="">-- เลือกอำเภอ --</option>';
+                amphoes.forEach(a => aSel.innerHTML += `<option value="${a}">${a}</option>`);
+                tSel.innerHTML = '<option value="">-- เลือกตำบล --</option>';
+                
+                renderMarkers(filtered);
+            };
+
+            aSel.onchange = function() {
+                let filtered = allPlaces.filter(p => p.province === pSel.value && p.amphoe === this.value);
+                let tambons = [...new Set(filtered.map(p => p.tambon))].filter(Boolean);
+                tSel.innerHTML = '<option value="">-- เลือกตำบล --</option>';
+                tambons.forEach(t => tSel.innerHTML += `<option value="${t}">${t}</option>`);
+                
+                renderMarkers(filtered);
+            };
+
+            tSel.onchange = function() {
+                let filtered = allPlaces.filter(p => p.province === pSel.value && p.amphoe === aSel.value && p.tambon === this.value);
+                if(this.value === "") filtered = allPlaces.filter(p => p.province === pSel.value && p.amphoe === aSel.value);
+                renderMarkers(filtered);
+            };
+        }
+
+        function resetFilter() {
+            pSel.value = "";
+            aSel.innerHTML = '<option value="">-- เลือกอำเภอ --</option>';
+            tSel.innerHTML = '<option value="">-- เลือกตำบล --</option>';
+            renderMarkers(allPlaces);
+        }
+
+        // 7. เพิ่มสัญลักษณ์สีของหมุด (Legend)
+        const legend = L.control({position: 'bottomright'});
+        legend.onAdd = function (map) {
+            let div = L.DomUtil.create('div', 'legend');
+            div.innerHTML += '<i style="background: green"></i> เคยมีรุ่นพี่ไปฝึกงาน<br>';
+            div.innerHTML += '<i style="background: red"></i> ยังไม่เคยมีรุ่นพี่ไปฝึกงาน<br>';
+            return div;
+        };
+        legend.addTo(map);
+
+        loadDataFromSupabase();
+    </script>
+</body>
+</html>
