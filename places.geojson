@@ -1,0 +1,485 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 1,
+          "type": "สำนักงาน",
+          "name": "สำนักงานพัฒนาเทคโนโลยีอวกาศและภูมิสารสนเทศ (องค์การมหาชน)",
+          "tambon": "แขวงทุ่งสองห้อง",
+          "amphoe": "เขตหลักสี่",
+          "province": "กรุงเทพมหานคร",
+          "contact": "", 
+          "link": "",
+          "alumni_name": "นางสาววริศรา จันทร์อินทร์, นางสาวปานไพลิน ชมเชย",
+          "academic_year": "2568",
+          "data_source": "alumni"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.56507113651352, 13.881416611554211]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 2,
+          "type": "สำนักงาน",
+          "name": "สำนักงานเทคโนโลยีการสำรวจและทำแผนที่ กรมพัฒนาที่ดิน",
+          "tambon": "ลาดยาว",
+          "amphoe": "จตุจักร",
+          "province": "กรุงเทพมหานคร",
+          "contact": "",
+          "link": "",
+          "alumni_name": "นายปรัชญากุล มณีฉาย, นายชิษชา ธรรมขันแข็ง",
+          "academic_year": "2568",
+          "data_source": "alumni"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.57327825790065, 13.837703183815684]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 3,
+          "type": "สถาบัน",
+          "name": "สถาบันเทคโนโลยีแห่งเอเชีย (AIT)",
+          "tambon": "คลองหนึ่ง",
+          "amphoe": "คลองหลวง",
+          "province": "ปทุมธานี",
+          "contact": "",
+          "link": "",
+          "alumni_name": "นายจักรภัทร บุญยง, นางสาวยุวดี ใจอินถา",
+          "academic_year": "2568",
+          "data_source": "alumni"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.61401715145918, 14.07848859870458]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 4,
+          "type": "ศูนย์",
+          "name": "ศูนย์ป่าไม้อุตรดิตถ์",
+          "tambon": "ป่าเซ่า",
+          "amphoe": "เมืองอุตรดิตถ์",
+          "province": "อุตรดิตถ์",
+          "contact": "",
+          "link": "",
+          "alumni_name": "นางสาวพรทิพย์ แป้นเพ็ชร",
+          "academic_year": "2568",
+          "data_source": "alumni"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.09829112577931, 17.62800258439012]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 5,
+          "type": "สำนัก",
+          "name": "สำนักบริหารพื้นที่อนุรักษ์ที่ 11",
+          "tambon": "ในเมือง",
+          "amphoe": "เมืองพิษณุโลก",
+          "province": "พิษณุโลก",
+          "contact": "",
+          "link": "",
+          "alumni_name": "นางสาวพรธีรา สิงห์โต",
+          "academic_year": "2568",
+          "data_source": "alumni"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.19226808749717, 16.801407254258184]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 6,
+          "type": "ศูนย์",
+          "name": "ศูนย์อุทกวิทยาชลประทานภาคเหนือตอนล่าง",
+          "tambon": "ท่าทอง",
+          "amphoe": "เมืองพิษณุโลก",
+          "province": "พิษณุโลก",
+          "contact": "",
+          "link": "",
+          "alumni_name": "นายสมรัก สิทธิ์ผิน, นายวงศธร กันเกิด",
+          "academic_year": "2568",
+          "data_source": "alumni"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.20547042645728, 16.789431684303736]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 7,
+          "type": "สำนักงาน",
+          "name": "สำนักงานโยธาธิการและผังเมือง จังหวัดพิษณุโลก",
+          "tambon": "ในเมือง",
+          "amphoe": "เมืองพิษณุโลก",
+          "province": "พิษณุโลก",
+          "contact": "",
+          "link": "",
+          "alumni_name": "นายภัททฤทธิ์ จันทรอินทร์",
+          "academic_year": "2568",
+          "data_source": "alumni"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.26015712802432, 16.826697459238666]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 8,
+          "type": "สำนักงาน",
+          "name": "ศูนย์เทคโนโลยีสารสนเทศและการสื่อสาร กรมควบคุมมลพิษ",
+          "tambon": "แขวงพญาไท",
+          "amphoe": "เขตพญาไท",
+          "province": "กรุงเทพมหานคร",
+          "contact": "",
+          "link": "",
+          "alumni_name": "นางสาวกัณฐมณี วรอินทร์, นายสุรวิศ ปัญญา",
+          "academic_year": "2568",
+          "data_source": "alumni"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.53955748476206, 13.78480776437015]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 9,
+          "type": "กรม",
+          "name": "กรมสอบสวนคดีพิเศษ",
+          "tambon": "ทุ่งสองห้อง",
+          "amphoe": "หลักสี่",
+          "province": "กรุงเทพมหานคร",
+          "contact": "",
+          "link": "https://www.dsi.go.th/th/Detail/%E0%B8%81%E0%B8%B2%E0%B8%B2%E0%B8%A3%E0%B8%A3%E0%B8%A3",
+          "alumni_name": "นางสาวกัญญาพัชร ภูเดช, นายชนวีร์ จันทะคุณ, นางสาวชาลิสา จันทะคุณ",
+          "academic_year": "2567",
+          "data_source": "alumni"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.56573006562866, 13.89067225122749]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 10,
+          "type": "กอง",
+          "name": "กองธรณีวิทยาสิ่งแวดล้อม กรมทรัพยากรธรณี",
+          "tambon": "ทุ่งพญาไท",
+          "amphoe": "ราชเทวี",
+          "province": "กรุงเทพมหานคร",
+          "contact": "",
+          "link": "",
+          "alumni_name": "นางสาวกานต์ธิดา วงศ์ฉายา, นางสาวตะวันฉาย เอี่ยมสำอางค์",
+          "academic_year": "2567",
+          "data_source": "alumni"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.52693906340777, 13.763079995673824]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 11,
+          "type": "สำนักงาน",
+          "name": "สำนักงานธนารักษ์พื้นที่เชียงใหม่",
+          "tambon": "ช้างเผือก",
+          "amphoe": "เมืองเชียงใหม่",
+          "province": "เชียงใหม่",
+          "contact": "",
+          "link": "https://chiangmai.treasury.go.th/th/",
+          "alumni_name": "นายกานน จันทร์ฉาย, นางสาวนัฐธิดา พนมพจน์",
+          "academic_year": "2567",
+          "data_source": "alumni"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [98.96866885433421, 18.83992421138112]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 12,
+          "type": "สำนักงาน",
+          "name": "สำนักงานพัฒนาเทคโนโลยีอวกาศและภูมิสารสนเทศ (องค์การมหาชน)",
+          "tambon": "ทุ่งสุขลา",
+          "amphoe": "ศรีราชา",
+          "province": "ชลบุรี",
+          "contact": "", 
+          "link": "",
+          "alumni_name": "นางสาวบุษราคัม ชิวหากาญจน์, นายจิรวัฒน์ เขียวคำ",
+          "academic_year": "2567",
+          "data_source": "alumni"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.92794742724823, 13.10240231496987]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 13,
+          "type": "บริษัท",
+          "name": "บริษัท ไอบิทช์ จำกัด",
+          "tambon": "ห้วยขวาง",
+          "amphoe": "ห้วยขวาง",
+          "province": "กรุงเทพมหานคร",
+          "contact": "",
+          "link": "",
+          "alumni_name": "นางสาวอภิญญา วงค์ปรีชาชาญ, นายเฉลิมพล อาจหาญ",
+          "academic_year": "2567",
+          "data_source": "alumni"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.54527023427579, 13.76358023324314]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 14,
+          "type": "รัฐวิสาหกิจ",
+          "name": "การไฟฟ้าส่วนภูมิภาค สำนักงานใหญ่",
+          "tambon": "ลาดยาว",
+          "amphoe": "จตุจักร",
+          "province": "กรุงเทพมหานคร",
+          "contact": "",
+          "link": "",
+          "alumni_name": "นางสาวสุวิมล ชื่นทิม",
+          "academic_year": "2567",
+          "data_source": "alumni"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.55805660053144, 13.850824212417953]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 15,
+          "type": "สำนักงาน",
+          "name": "สำนักงานโยธาธิการและผังเมืองจังหวัดพิษณุโลก",
+          "tambon": "ในเมือง",
+          "amphoe": "เมืองพิษณุโลก",
+          "province": "พิษณุโลก",
+          "contact": "",
+          "link": "",
+          "alumni_name": "นางสาวสุชานาฏ มโนทัย",
+          "academic_year": "2567",
+          "data_source": "alumni"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.2602488308033, 16.826618035324476]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 16,
+          "type": "สถาบัน",
+          "name": "สถาบันเทคโนโลยีแห่งเอเชีย (AIT)",
+          "tambon": "คลองหนึ่ง",
+          "amphoe": "คลองหลวง",
+          "province": "ปทุมธานี",
+          "contact": "",
+          "link": "",
+          "alumni_name": "นางสาวจิดาภา มีอุดร, นางสาวสุนันทา แสงศิลา",
+          "academic_year": "2567",
+          "data_source": "alumni"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.61335686155749, 14.078756758872805]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 17,
+          "type": "ศูนย์",
+          "name": "ศูนย์เทคโนโลยีอิเล็กทรอนิกส์และคอมพิวเตอร์แห่งชาติ (NECTEC)",
+          "tambon": "คลองหนึ่ง",
+          "amphoe": "คลองหลวง",
+          "province": "ปทุมธานี",
+          "contact": "",
+          "link": "",
+          "alumni_name": "นางสาวเพชรรัตน์ จงธรรม, นายวีรภัทร นวลอินทร์",
+          "academic_year": "2567",
+          "data_source": "alumni"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.6012023895572, 14.077864192169706]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 18,
+          "type": "สำนัก",
+          "name": "สำนักบริหารอนุรักษ์พื้นที่ 11",
+          "tambon": "ในเมือง",
+          "amphoe": "เมืองพิษณุโลก",
+          "province": "พิษณุโลก",
+          "contact": "",
+          "link": "",
+          "alumni_name": "นายคมสันต์ จันทร์อุปถัมภ์, นายจักริน ด่านไชยกูล, นายธนวัฒน์ คดคง",
+          "academic_year": "2567",
+          "data_source": "alumni"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.192516054627, 16.801292208679293]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 19,
+          "type": "ศูนย์",
+          "name": "ศูนย์อุทกวิทยาชลประทานภาคเหนือตอนล่าง",
+          "tambon": "ท่าทอง",
+          "amphoe": "เมืองพิษณุโลก",
+          "province": "พิษณุโลก",
+          "contact": "",
+          "link": "",
+          "alumni_name": "นางสาวทอฝัน บุญยงค์, นางสาววรรณภรณ์ สีวัน",
+          "academic_year": "2567",
+          "data_source": "alumni"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.2054980779316, 16.789510702003216]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 20,
+          "type": "บริษัท/อื่นๆ (Survey)",
+          "name": "บริษัท ยูเอวี เทคโนโลยี (ประเทศไทย) จำกัด (ช่างสำรวจ)",
+          "tambon": "ห้วยจรเข้",
+          "amphoe": "เมืองนครปฐม",
+          "province": "นครปฐม",
+          "contact": "ถ.เพชรเกษม นครปฐม 73000",
+          "link": "https://internth.com/job/16958",
+          "alumni_name": "ข้อมูลแนะนำจากออนไลน์",
+          "academic_year": "",
+          "data_source": "online"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.06534180033547, 13.814675198298207]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 21,
+          "type": "บริษัท/อื่นๆ (GIS Officer)",
+          "name": "บริษัท ยูเอวี เทคโนโลยี (ประเทศไทย) จำกัด (นักภูมิศาสตร์)",
+          "tambon": "ห้วยจรเข้",
+          "amphoe": "เมืองนครปฐม",
+          "province": "นครปฐม",
+          "contact": "ถ.เพชรเกษม นครปฐม 73000",
+          "link": "https://internth.com/job/16959",
+          "alumni_name": "ข้อมูลแนะนำจากออนไลน์",
+          "academic_year": "",
+          "data_source": "online"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.06534180033547, 13.814675198298207]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 22,
+          "type": "บริษัท/อื่นๆ",
+          "name": "บริษัทปูนซิเมนต์ไทย จำกัด (มหาชน) SCG",
+          "tambon": "บางซื่อ",
+          "amphoe": "บางซื่อ",
+          "province": "กรุงเทพมหานคร",
+          "contact": "1 ถ.ปูนซีเมนต์ไทย กรุงเทพฯ 10800",
+          "link": "https://career.scg.com/internship/co-operative-education-program",
+          "alumni_name": "",
+          "academic_year": "",
+          "data_source": "online"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.53773389370912, 13.805423619677864]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 23,
+          "type": "บริษัท/อื่นๆ",
+          "name": "บริษัท ดี.ที.ซี. เอ็นเตอร์ไพรส์ จำกัด (มหาชน)",
+          "tambon": "บางนาเหนือ",
+          "amphoe": "บางนา",
+          "province": "กรุงเทพมหานคร",
+          "contact": "ซอยสรรพาวุธ 2 กรุงเทพฯ 10260",
+          "link": "",
+          "alumni_name": "",
+          "academic_year": "",
+          "data_source": "online"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.60352797299352, 13.67671437485931]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": 24,
+          "type": "บริษัท/อื่นๆ",
+          "name": "บริษัท เอ็นเนเบิล เอิร์ธ จำกัด",
+          "tambon": "สะพานสอง",
+          "amphoe": "วังทองหลาง",
+          "province": "กรุงเทพมหานคร",
+          "contact": "399 ซอยลาดพร้าว 53/1 กรุงเทพฯ 10310",
+          "link": "",
+          "alumni_name": "",
+          "academic_year": "",
+          "data_source": "online"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [100.59586946299194, 13.800974089793351]
+        }
+      }
+    ]
+  }

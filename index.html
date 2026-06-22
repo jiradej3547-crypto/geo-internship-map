@@ -3,218 +3,440 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบแผนที่ข้อมูลฝึกงานนิสิตภูมิศาสตร์</title>
+    <title>ระบบแผนที่ข้อมูลฝึกงานเด้อ</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
-        * { box-sizing: border-box; font-family: Tahoma, sans-serif; }
-        body { margin: 0; padding: 0; display: flex; height: 100vh; flex-direction: column; }
+        /* 🔳 ทุกอย่างเป็นสี่เหลี่ยมมุมเหลี่ยม ไม่มีขอบมน (No Border Radius) */
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Thonburi, sans-serif; border-radius: 0 !important; }
+        body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; overflow: hidden; background-color: #f8fafc; display: flex; flex-direction: column; }
         
-        /* แผงควบคุม Filter ด้านบน */
-        #filter-container {
+        /* 🟦 ส่วนหัวข้อด้านบนสุด */
+        #app-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 16px 20px 10px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1100;
+        }
+        #app-header h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+        /* 🔍 แผงสืบค้นแนวนอนใต้หัวข้อ */
+        #filter-bar {
             background: #ffffff;
-            padding: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 12px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border-bottom: 1px solid #e2e8f0;
+            z-index: 1050;
+        }
+        
+        .search-wrapper { position: relative; flex: 1; min-width: 200px; max-width: 300px; }
+        .input-search {
+            width: 100%; padding: 9px 12px 9px 32px; border: 1px solid #cbd5e1;
+            font-size: 13px; outline: none; background: #f8fafc;
+        }
+        .input-search:focus { border-color: #3b82f6; background: #fff; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+        .search-icon { position: absolute; left: 10px; top: 10px; color: #94a3b8; font-size: 13px; }
+
+        select { 
+            flex: 1; min-width: 140px; max-width: 200px; padding: 9px 12px; 
+            border: 1px solid #cbd5e1; font-size: 13px; 
+            color: #334155; background-color: #ffffff; outline: none; 
+        }
+        select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+        
+        .btn-reset { 
+            padding: 9px 16px; border: none; font-size: 13px; 
+            font-weight: 600; color: white; background-color: #64748b; cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-reset:hover { background-color: #475569; }
+
+        /* พื้นที่แสดงแผนที่ */
+        #map-container { 
+            flex: 1; 
+            width: 100%; 
+            position: relative; 
+            background-color: #f1f5f9;
+            overflow: hidden;
+        }
+        #map { 
+            width: 100%; 
+            height: 100%; 
+            z-index: 1; 
+            border: none;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ↗️ ปุ่มสลับเลเยอร์แบบเหลี่ยมสีดำขวาบน */
+        #top-right-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+        /* ↘️ แผงปุ่มควบคุมพิกัดขวาล่าง */
+        #bottom-right-controls {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
             z-index: 1000;
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+            flex-direction: column;
             align-items: center;
+            gap: 10px;
         }
-        select, input, button {
-            padding: 8px 12px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        button { background-color: #007bff; color: white; cursor: pointer; font-weight: bold; border: none; }
-        button:hover { background-color: #0056b3; }
-        
-        /* พื้นที่แผนที่กว้างเต็มจอ */
-        #map { flex: 1; width: 100%; z-index: 1; }
 
-        /* กล่องคำอธิบายสัญลักษณ์แผนที่ (Legend) */
-        .legend {
-            background: white; padding: 10px; line-height: 18px; color: #555;
-            box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 5px; font-size: 13px;
+        /* 🧭 เข็มทิศสีดำคุมทิศทาง */
+        .gmaps-compass {
+            width: 46px; height: 46px;
+            background-color: #1e293b;
+            border-radius: 50% !important; 
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer; position: relative;
+            user-select: none;
         }
-        .legend i { width: 14px; height: 14px; float: left; margin-right: 8px; opacity: 0.8; border-radius: 50%; }
+        .gmaps-compass-needle {
+            width: 100%; height: 100%;
+            position: absolute;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 15 L62 50 L50 42 Z' fill='%23ef4444'/%3E%3Cpath d='M50 15 L38 50 L50 42 Z' fill='%23ef4444' opacity='0.85'/%3E%3Cpath d='M50 85 L62 50 L50 42 Z' fill='%23e2e8f0'/%3E%3Cpath d='M50 85 L38 50 L50 42 Z' fill='%23cbd5e1'/%3E%3Cpath d='M25 50 A 25 25 0 0 1 35 25' stroke='%2394a3b8' stroke-width='3' fill='none'/%3E%3Cpath d='M75 50 A 25 25 0 0 0 65 25' stroke='%2394a3b8' stroke-width='3' fill='none'/%3E%3C/svg%3E");
+            background-size: 80% 80%; background-position: center; background-repeat: no-repeat;
+        }
+
+        /* ปุ่มสี่เหลี่ยมสีดำขอบเหลี่ยมสนิท */
+        .gmaps-square-btn {
+            width: 42px; height: 42px;
+            background-color: #1e293b;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            cursor: pointer; color: white;
+            border: 1px solid #334155;
+        }
+        .gmaps-square-btn:hover, .gmaps-zoom-capsule div:hover { background-color: #334155; }
+        .gmaps-square-btn svg { width: 22px; height: 22px; fill: currentColor; }
+
+        /* แท่งสี่เหลี่ยมแนวตั้งสำหรับปุ่มซูม */
+        .gmaps-zoom-capsule {
+            width: 42px; height: 84px;
+            background-color: #1e293b;
+            display: flex; flex-direction: column;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            border: 1px solid #334155;
+        }
+        .gmaps-zoom-capsule div {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 22px; font-weight: bold; cursor: pointer; user-select: none;
+        }
+        .gmaps-zoom-divider {
+            height: 1px; background-color: #475569; width: 65%; align-self: center;
+        }
+
+        /* ซ่อนแผงดั้งเดิมของ Leaflet ออกไป */
+        .leaflet-top.leaflet-right { display: none !important; } 
+        
+        /* 📋 กล่องเมนูเลเยอร์ */
+        #custom-layer-menu {
+            position: absolute;
+            top: 10px;
+            right: 60px;
+            z-index: 1001;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            padding: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            font-size: 13px;
+            color: #1e293b;
+            display: none;
+            max-height: 80vh;
+            overflow-y: auto;
+            width: 250px;
+        }
+        .layer-group-title { font-weight: 700; color: #1e3a8a; margin-top: 14px; display: block; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; }
+        .layer-item { margin: 6px 0; display: flex; align-items: center; gap: 6px; }
+        .layer-item input { cursor: pointer; margin: 0; }
+
+        /* 🔳 หน้าต่างคุม Popup แบบเหลี่ยม และกำหนดการเว้นวรรคให้เป็นระเบียบ */
+        .custom-popup .leaflet-popup-content-wrapper { background: #ffffff; padding: 4px; box-shadow: 0 10px 30px rgba(15,23,42,0.2); }
+        .custom-popup .leaflet-popup-content { margin: 12px 14px; line-height: 1.6; min-width: 270px; }
+        .popup-title { font-size: 15px; font-weight: 700; color: #1e3a8a; margin: 0 0 8px 0; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; }
+        .popup-info-row { margin-bottom: 4px; font-size: 12px; color: #475569; display: flex; }
+        .popup-info-row b { color: #0f172a; min-width: 90px; display: inline-block; }
+        .popup-link { color: #3b82f6; text-decoration: none; font-weight: 600; background: #eff6ff; padding: 1px 6px; border: 1px solid #dbeafe; }
+        .popup-link:hover { background: #dbeafe; }
     </style>
 </head>
 <body>
 
-    <div id="filter-container">
-        <strong>ตัวกรองพื้นที่:</strong>
+    <div id="app-header">
+        <h1>ฝึกงานเด้อ</h1>
+    </div>
+
+    <div id="filter-bar">
+        <div class="search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="text-search" class="input-search" placeholder="พิมพ์ชื่อสถานที่/จังหวัดเพื่อค้นหา...">
+        </div>
         <select id="filter-province"><option value="">-- เลือกจังหวัด --</option></select>
         <select id="filter-amphoe"><option value="">-- เลือกอำเภอ --</option></select>
         <select id="filter-tambon"><option value="">-- เลือกตำบล --</option></select>
-        <button onclick="resetFilter()">ล้างตัวกรอง</button>
+        <button class="btn-reset" onclick="resetFilter()">🔄 ล้างการค้นหา</button>
     </div>
 
-    <div id="map"></div>
+    <div id="map-container">
+        
+        <div id="top-right-controls">
+            <div class="gmaps-square-btn" onclick="toggleLayersControl()" title="เปิด/ปิดรายการแผนที่">
+                <svg viewBox="0 0 24 24"><path d='M4 11h6V5H4v6zm0 8h6v-6H4v6zm8 0h6v-6h-6v6zm0-14v6h6V5h-6z'/></svg>
+            </div>
+        </div>
+
+        <div id="custom-layer-menu">
+            <span class="layer-group-title" style="margin-top:0;">แผนที่ฐาน</span>
+            <div class="layer-item"><input type="radio" name="basemap" checked onclick="switchBasemap('road')"> แผนที่ถนน (OpenStreetMap)</div>
+            <div class="layer-item"><input type="radio" name="basemap" onclick="switchBasemap('satellite')"> แผนที่ภาพถ่ายดาวเทียม (Esri)</div>
+            <div class="layer-item"><input type="radio" name="basemap" onclick="switchBasemap('terrain')"> แผนที่ภูมิประเทศ (Esri)</div>
+            <div class="layer-item"><input type="radio" name="basemap" onclick="switchBasemap('light')"> แผนที่สว่าง (CartoDB)</div>
+
+            <span class="layer-group-title">ปีที่เข้าฝึกงาน / สหกิจ</span>
+            <div class="layer-item"><input type="checkbox" id="chk-y2567" onclick="toggleOverlay('y2567', this)"> ปีการศึกษา 2567</div>
+            <div class="layer-item"><input type="checkbox" id="chk-y2568" onclick="toggleOverlay('y2568', this)"> ปีการศึกษา 2568</div>
+
+            <span class="layer-group-title">ประเภทหน่วยงาน</span>
+            <div class="layer-item"><input type="checkbox" id="chk-tOffice" onclick="toggleOverlay('tOffice', this)"> สำนักงาน</div>
+            <div class="layer-item"><input type="checkbox" id="chk-tDept" onclick="toggleOverlay('tDept', this)"> กรม / กอง</div>
+            <div class="layer-item"><input type="checkbox" id="chk-tInst" onclick="toggleOverlay('tInst', this)"> สถาบัน / ศูนย์</div>
+            <div class="layer-item"><input type="checkbox" id="chk-tCompany" onclick="toggleOverlay('tCompany', this)"> บริษัท / เอกชน</div>
+
+            <span class="layer-group-title">แหล่งที่มาข้อมูล</span>
+            <div class="layer-item"><input type="checkbox" id="chk-sAlumni" checked onclick="toggleOverlay('sAlumni', this)"> ข้อมูลจากรุ่นพี่ มน.</div>
+            <div class="layer-item"><input type="checkbox" id="chk-sOnline" checked onclick="toggleOverlay('sOnline', this)"> ข้อมูลแนะนำจากออนไลน์</div>
+        </div>
+
+        <div id="bottom-right-controls">
+            
+            <div class="gmaps-compass" onclick="resetRotation()" title="รีเซ็ตทิศเหนือ">
+                <div class="gmaps-compass-needle" id="compass-needle"></div>
+            </div>
+
+            <div class="gmaps-square-btn" onclick="findMyLocation()" title="ตำแหน่งของฉัน">
+                <svg viewBox="0 0 24 24"><path d='M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z'/></svg>
+            </div>
+
+            <div class="gmaps-zoom-capsule">
+                <div onclick="map.zoomIn()">＋</div>
+                <div class="gmaps-zoom-divider"></div>
+                <div onclick="map.zoomOut()">－</div>
+            </div>
+            
+        </div>
+
+        <div id="map"></div>
+    </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
     <script>
-        // 1. เชื่อมต่อ Supabase (อัปเดตเป็น Service Role Key ตัวจริงที่ใช้งานได้ชัวร์แล้วครับ)
-        const SUPABASE_URL = 'https://wcybylobwcqwbicgvuhv.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjeWJ5bG9id2Nxd2JpY2d2dWh2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDkyNjUyNCwiZXhwIjoyMDk2NTAyNTI0fQ.BN4h5gmZXXbsuZ67wF9T4FqhcsiO03__cqbAlcyIHAQ';
-        
-        const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const baseLayers = {
+            'road': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
+            'satellite': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
+            'terrain': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}'),
+            'light': L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png')
+        };
 
-        // 2. สร้างแผนที่ตั้งต้นประเทศไทย
-        const map = L.map('map').setView([15.0, 100.5], 6);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+        const layerGroups = {
+            "y2567": L.layerGroup(), "y2568": L.layerGroup(),
+            "tOffice": L.layerGroup(), "tDept": L.layerGroup(), "tInst": L.layerGroup(), "tCompany": L.layerGroup(),
+            "sAlumni": L.layerGroup(), "sOnline": L.layerGroup()
+        };
 
-        let allPlaces = []; 
-        let markerGroup = L.layerGroup().addTo(map); 
+        const map = L.map('map', {
+            center: [15.2, 100.5], zoom: 6, zoomControl: false, 
+            layers: [baseLayers['road'], layerGroups["sAlumni"], layerGroups["sOnline"]]
+        });
 
-        // 3. ฟังก์ชันโหลดข้อมูลหลัก
-        async function loadDataFromSupabase() {
-            try {
-                let { data: CHG, error } = await dbClient.from('CHG').select('*').order('id', { ascending: true });
-                if (error) { 
-                    console.error('Supabase Error:', error); 
-                    return; 
-                }
+        let currentRotation = 0;
 
-                allPlaces = CHG;
-                setupDropdowns(); 
-                renderMarkers(allPlaces); 
-            } catch (err) {
-                console.error(err);
+        function switchBasemap(type) {
+            for (let key in baseLayers) {
+                map.removeLayer(baseLayers[key]);
+            }
+            baseLayers[type].addTo(map);
+        }
+
+        function toggleOverlay(layerKey, checkbox) {
+            if (checkbox.checked) {
+                map.addLayer(layerGroups[layerKey]);
+            } else {
+                map.removeLayer(layerGroups[layerKey]);
             }
         }
 
-        // 4. ฟังก์ชันวาดหมุด + แยกสี + สร้าง Popup ฟอร์มจอง
+        function toggleLayersControl() {
+            const menu = document.getElementById('custom-layer-menu');
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'block';
+            }
+        }
+
+        function resetRotation() {
+            currentRotation = 0;
+            updateRotationUI();
+        }
+
+        function updateRotationUI() {
+            document.getElementById('map').style.transform = `rotate(${currentRotation}deg)`;
+            document.getElementById('compass-needle').style.transform = `rotate(${-currentRotation}deg)`;
+        }
+
+        function findMyLocation() {
+            map.locate({setView: true, maxZoom: 14});
+        }
+        map.on('locationfound', function(e) {
+            L.circle(e.latlng, e.accuracy).addTo(map);
+            L.marker(e.latlng).addTo(map).bindPopup("ตำแหน่งของคุณ").openPopup();
+        });
+        map.on('locationerror', function(e) {
+            alert("ไม่สามารถเข้าถึงตำแหน่ง GPS ของอุปกรณ์ได้");
+        });
+
+        async function loadDataFromGeoJSON() {
+            try {
+                let response = await fetch('places.geojson'); 
+                let geojsonData = await response.json();
+                allPlaces = geojsonData.features.map(f => {
+                    return { ...f.properties, latitude: f.geometry.coordinates[1], longitude: f.geometry.coordinates[0] };
+                });
+                setupDropdowns(); 
+                setupTextSearch();
+                renderMarkers(allPlaces); 
+            } catch (err) { console.error(err); }
+        }
+
         function renderMarkers(dataList) {
-            markerGroup.clearLayers(); 
+            for (let key in layerGroups) layerGroups[key].clearLayers();
 
             dataList.forEach(place => {
                 if (!place.latitude || !place.longitude) return;
 
-                // เงื่อนไขแยกสีหมุด: ถ้าช่องชื่อรุ่นพี่ไม่ว่าง = เขียว, ถ้าว่างเปล่า = แดง
-                let markerColor = "red"; 
-                if (place.alumni_name && place.alumni_name.toString().trim() !== "") {
-                    markerColor = "green";
-                }
+                let isOnline = place.data_source === "online";
+                let markerColor = isOnline ? "#f97316" : (place.academic_year === "2568" ? "#3b82f6" : "#64748b");
+                let sourceLabel = isOnline ? "ออนไลน์อัปเดต" : "รุ่นพี่ฝึกงานจริง";
 
-                let lat = parseFloat(place.latitude);
-                let lng = parseFloat(place.longitude);
-
-                let marker = L.circleMarker([lat, lng], {
-                    color: markerColor,
-                    fillColor: markerColor,
-                    fillOpacity: 0.7,
-                    radius: 10
+                let marker = L.circleMarker([parseFloat(place.latitude), parseFloat(place.longitude)], {
+                    color: "#ffffff", fillColor: markerColor, fillOpacity: 0.9, radius: 11, weight: 2
                 });
 
+                // ตรวจสอบเงื่อนไขค่าว่างของข้อมูล ถ้าไม่มีให้ใส่เครื่องหมาย "-" แทนตามสั่ง
+                let nameLabel = place.alumni_name ? place.alumni_name : "-";
+                let linkLabel = place.link ? `<a class="popup-link" href="${place.link}" target="_blank">🌐 รายละเอียดงาน</a>` : "-";
+                let contactLabel = place.contact ? place.contact : "-";
+
                 let popupContent = `
-                    <div style="font-size:14px; min-width:220px;">
-                        <h3 style="margin:0 0 8px 0; color:#333;">${place.name || 'ไม่มีชื่อสถานที่'}</h3>
-                        <b>ประเภท:</b> ${place.type || '-'}<br>
-                        <b>พื้นที่:</b> ต.${place.tambon || '-'} อ.${place.amphoe || '-'} จ.${place.province || '-'}<br>
-                        <b>ข้อมูลติดต่อ:</b> ${place.contact || '-'}<br>
-                        <b>ลิงก์:</b> ${place.link ? `<a href="${place.link}" target="_blank">ลิงก์ติดต่อ</a>` : '-'}<br>
-                        <span style="color:green;"><b>รุ่นพี่ที่เคยฝึก:</b> ${place.alumni_name || 'ยังไม่มีข้อมูล'}</span> 
-                        ${place.academic_year ? `(${place.academic_year})` : ''}<br>
-                        <i>"${place.review || '-'}"</i>
-                        <hr style="margin:10px 0; border: 0; border-top: 1px dashed #ccc;">
-                        <strong>[ ระบบจองที่ฝึกงาน ]</strong><br>
-                        <b>สถานะ:</b> ${place.booking_status || '<span style="color:gray;">ว่าง</span>'}<br>
-                        <b>ผู้จอง:</b> ${place.student_booking || '-'}<br>
-                        
-                        <div style="margin-top:8px; display:flex; flex-direction:column; gap:5px;">
-                            <input type="text" id="book-name-${place.id}" placeholder="พิมพ์ชื่อของคุณเพื่อจอง" value="${place.student_booking || ''}">
-                            <button onclick="handleBooking(${place.id})">บันทึกการจอง / ยกเลิก</button>
-                        </div>
+                    <div class="custom-popup-content">
+                        <h3 class="popup-title">🏢 ${place.name || 'ไม่ระบุชื่อสถานที่'}</h3>
+                        <div class="popup-info-row"><b>ประเภทข้อมูล:</b> <span style="font-weight:bold; color:${markerColor};">${sourceLabel}</span></div>
+                        <div class="popup-info-row"><b>ประเภทหน่วย:</b> ${place.type || '-'}</div>
+                        <div class="popup-info-row"><b>ตำแหน่งพื้นที่:</b> ต.${place.tambon || '-'} อ.${place.amphoe || '-'} จ.${place.province || '-'}</div>
+                        <div class="popup-info-row"><b>ชื่อนิสิตรุ่นพี่:</b> <span style="color:#1e3a8a; font-weight:600;">${nameLabel}</span></div>
+                        <div class="popup-info-row"><b>ปีที่รุ่นพี่ไปฝึก:</b> ${place.academic_year ? `พ.ศ. ${place.academic_year}` : 'ข้อมูลแนะนำเพิ่ม'}</div>
+                        <div class="popup-info-row"><b>ลิงก์ระบุ:</b> ${linkLabel}</div>
                     </div>
                 `;
+                marker.bindPopup(popupContent, { className: 'custom-popup' });
 
-                marker.bindPopup(popupContent);
-                markerGroup.addLayer(marker);
+                if (place.academic_year === "2567") layerGroups["y2567"].addLayer(marker);
+                if (place.academic_year === "2568") layerGroups["y2568"].addLayer(marker);
+                
+                let pType = place.type || "";
+                if (pType.includes("สำนักงาน")) layerGroups["tOffice"].addLayer(marker);
+                else if (pType.includes("กรม") || pType.includes("กอง")) layerGroups["tDept"].addLayer(marker);
+                else if (pType.includes("สถาบัน") || pType.includes("ศูนย์")) layerGroups["tInst"].addLayer(marker);
+                else layerGroups["tCompany"].addLayer(marker);
+
+                if (isOnline) layerGroups["sOnline"].addLayer(marker);
+                else layerGroups["sAlumni"].addLayer(marker);
             });
         }
 
-        // 5. ฟังก์ชันอัปเดตการจอง
-        async function handleBooking(id) {
-            let inputName = document.getElementById(`book-name-${id}`).value.trim();
-            let status = inputName !== "" ? "จองแล้ว" : null;
-            let finalName = inputName !== "" ? inputName : null;
-
-            const { error } = await dbClient
-                .from('CHG')
-                .update({ student_booking: finalName, booking_status: status })
-                .eq('id', id);
-
-            if (error) {
-                alert("เกิดข้อผิดพลาด: " + error.message);
-            } else {
-                alert("อัปเดตข้อมูลการจองเรียบร้อยแล้ว!");
-                loadDataFromSupabase(); 
-            }
+        function setupTextSearch() {
+            const txtSearch = document.getElementById('text-search');
+            txtSearch.addEventListener('input', function() {
+                let searchVal = this.value.trim().toLowerCase();
+                let filtered = allPlaces.filter(p => {
+                    return (p.name && p.name.toLowerCase().includes(searchVal)) ||
+                           (p.province && p.province.toLowerCase().includes(searchVal)) ||
+                           (p.amphoe && p.amphoe.toLowerCase().includes(searchVal)) ||
+                           (p.tambon && p.tambon.toLowerCase().includes(searchVal));
+                });
+                renderMarkers(filtered);
+            });
         }
 
-        // 6. ระบบกรองพื้นที่ (Cascading Dropdown)
-        const pSel = document.getElementById('filter-province');
-        const aSel = document.getElementById('filter-amphoe');
-        const tSel = document.getElementById('filter-tambon');
-
+        const pSel = document.getElementById('filter-province'), aSel = document.getElementById('filter-amphoe'), tSel = document.getElementById('filter-tambon');
         function setupDropdowns() {
-            let provinces = [...new Set(allPlaces.map(p => p.province))].filter(Boolean);
+            let provinces = [...new Set(allPlaces.map(p => p.province))].filter(Boolean).sort();
             pSel.innerHTML = '<option value="">-- เลือกจังหวัด --</option>';
             provinces.forEach(p => pSel.innerHTML += `<option value="${p}">${p}</option>`);
 
             pSel.onchange = function() {
+                document.getElementById('text-search').value = "";
                 let filtered = allPlaces.filter(p => p.province === this.value);
                 if(this.value === "") filtered = allPlaces;
-                
-                let amphoes = [...new Set(filtered.map(p => p.amphoe))].filter(Boolean);
+                let amphoes = [...new Set(filtered.map(p => p.amphoe))].filter(Boolean).sort();
                 aSel.innerHTML = '<option value="">-- เลือกอำเภอ --</option>';
                 amphoes.forEach(a => aSel.innerHTML += `<option value="${a}">${a}</option>`);
                 tSel.innerHTML = '<option value="">-- เลือกตำบล --</option>';
-                
                 renderMarkers(filtered);
             };
-
             aSel.onchange = function() {
                 let filtered = allPlaces.filter(p => p.province === pSel.value && p.amphoe === this.value);
-                let tambons = [...new Set(filtered.map(p => p.tambon))].filter(Boolean);
+                let tambons = [...new Set(filtered.map(p => p.tambon))].filter(Boolean).sort();
                 tSel.innerHTML = '<option value="">-- เลือกตำบล --</option>';
                 tambons.forEach(t => tSel.innerHTML += `<option value="${t}">${t}</option>`);
-                
                 renderMarkers(filtered);
             };
-
             tSel.onchange = function() {
                 let filtered = allPlaces.filter(p => p.province === pSel.value && p.amphoe === aSel.value && p.tambon === this.value);
                 if(this.value === "") filtered = allPlaces.filter(p => p.province === pSel.value && p.amphoe === aSel.value);
                 renderMarkers(filtered);
             };
         }
+        
+        function resetFilter() { 
+            document.getElementById('text-search').value = "";
+            pSel.value = ""; aSel.innerHTML = '<option value="">-- เลือกอำเภอ --</option>'; tSel.innerHTML = '<option value="">-- เลือกตำบล --</option>'; 
+            
+            document.getElementById('chk-y2567').checked = false;
+            document.getElementById('chk-y2568').checked = false;
+            document.getElementById('chk-tOffice').checked = false;
+            document.getElementById('chk-tDept').checked = false;
+            document.getElementById('chk-tInst').checked = false;
+            document.getElementById('chk-tCompany').checked = false;
+            document.getElementById('chk-sAlumni').checked = true;
+            document.getElementById('chk-sOnline').checked = true;
+            
+            for (let key in layerGroups) { map.removeLayer(layerGroups[key]); }
+            map.addLayer(layerGroups["sAlumni"]);
+            map.addLayer(layerGroups["sOnline"]);
 
-        function resetFilter() {
-            pSel.value = "";
-            aSel.innerHTML = '<option value="">-- เลือกอำเภอ --</option>';
-            tSel.innerHTML = '<option value="">-- เลือกตำบล --</option>';
-            renderMarkers(allPlaces);
+            resetRotation();
+            renderMarkers(allPlaces); 
         }
-
-        // 7. เพิ่มสัญลักษณ์สีของหมุด (Legend)
-        const legend = L.control({position: 'bottomright'});
-        legend.onAdd = function (map) {
-            let div = L.DomUtil.create('div', 'legend');
-            div.innerHTML += '<i style="background: green"></i> เคยมีรุ่นพี่ไปฝึกงาน<br>';
-            div.innerHTML += '<i style="background: red"></i> ยังไม่เคยมีรุ่นพี่ไปฝึกงาน<br>';
-            return div;
-        };
-        legend.addTo(map);
-
-        loadDataFromSupabase();
+        
+        loadDataFromGeoJSON();
     </script>
 </body>
 </html>
